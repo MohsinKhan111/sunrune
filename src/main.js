@@ -404,9 +404,12 @@ function showTitle() {
             ]);
             if (pick !== 0) return;
           }
+          // Leave the title the way the game arrives: on a fade, not a cut. The intro
+          // opens on black anyway, so this hands straight over to it.
+          await G.fade(1, 0.4, '#000000');
           startGame(null);
         }
-        if (what === 'continue') continueGame();
+        if (what === 'continue') await continueGame();
         if (what === 'settings') openSettings();
         if (what === 'credits') credits();
       },
@@ -415,7 +418,7 @@ function showTitle() {
 }
 
 // Continue: read the one save slot and put Pip back where the letter was written.
-function continueGame() {
+async function continueGame() {
   const res = loadGame();
   if (res.error) {
     // An old version and one that won't parse get the same line, and neither deletes
@@ -423,11 +426,14 @@ function continueGame() {
     say(null, SAVE_OLD);
     return;
   }
+  await G.fade(1, 0.4, '#000000');
   G.state = res.state;
   const world = new Overworld();
   G.replace(world);
   if (window.__sunrune) window.__sunrune.world = world;
   world.load(G.state.map, null, { x: G.state.x, y: G.state.y, facing: G.state.facing });
+  // Up from black rather than straight on, the same way the intro hands over.
+  await G.fade(0, 0.55);
   world.showBanner();
 }
 

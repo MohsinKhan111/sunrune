@@ -38,9 +38,9 @@ const clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));
 export const FLUID_DPR = 2;
 
 // The smallest a cluster may get, and the breathing room around it inside its gutter.
-// A face button is 43% of the cluster, and 44 px is the smallest comfortable target
+// A face button is 38% of the cluster, and 44 px is the smallest comfortable target
 // both Apple and Google publish - so the cluster floor is what makes that hold.
-const MIN_UNIT = 104;
+const MIN_UNIT = 116;
 const CLUSTER_PAD = 18;
 // What the controls and the hint band need in an upright window, on top of the cluster.
 const CONTROLS_PAD = 34;

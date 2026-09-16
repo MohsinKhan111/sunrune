@@ -33,10 +33,14 @@ const DEVICES = [
 ];
 
 // The smallest a control may be and still be an easy target for a thumb. 44 px is the
-// figure both Apple and Google publish; the face buttons are 43% of the cluster, which
+// figure both Apple and Google publish; the face buttons are 38% of the cluster, which
 // is the tightest thing the cluster size has to satisfy.
 const MIN_TAP = 44;
-const BUTTON_SHARE = 0.43;
+const BUTTON_SHARE = 0.38;
+// How far a face button's centre sits from the middle of the cluster, and so how far
+// apart two neighbours are. Both are fractions of the cluster, and they have to leave
+// the buttons a gap - four circles that touch are what this pair of numbers is for.
+const BUTTON_OFFSET = 0.31;
 
 test('every device gets one of the two layouts, the one that matches its shape', () => {
   for (const [name, w, h, dpr] of DEVICES) {
@@ -136,5 +140,17 @@ test('the layout is the same shape whatever the density', () => {
       assert.equal(lay.orientation, shapes[0].orientation, name);
       assert.ok(lay.unit * BUTTON_SHARE >= MIN_TAP, `${name}: button too small`);
     }
+  }
+});
+
+test('the four face buttons have a gap between them, at every size', () => {
+  // Neighbours sit at right angles, so their centres are offset*sqrt(2) apart. Anything
+  // less than a button's width there and the circles overlap, which is what they did.
+  const apart = BUTTON_OFFSET * Math.SQRT2;
+  assert.ok(apart > BUTTON_SHARE, `buttons ${BUTTON_SHARE} wide with centres ${apart.toFixed(3)} apart overlap`);
+  for (const [name, w, h, dpr] of DEVICES) {
+    const lay = padLayout(w, h, dpr);
+    const gap = (apart - BUTTON_SHARE) * lay.unit;
+    assert.ok(gap >= 4, `${name}: only ${gap.toFixed(1)}px between neighbouring buttons`);
   }
 });

@@ -10,6 +10,10 @@ class CardScene {
   constructor({ title, subtitle, lines, dur, resolve }) {
     this.opaque = true;
     this.blocksUpdate = true;
+    // A card paints its own black and has something to say on it, so it sits above the
+    // screen fade rather than under it. That also lets a script hold the fade at black
+    // underneath, so when the card ends the world can fade up instead of snapping on.
+    this.aboveFade = true;
     this.title = title ?? null;
     this.subtitle = subtitle ?? null;
     this.lines = lines ?? null;

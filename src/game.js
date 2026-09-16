@@ -1,5 +1,5 @@
 // The shared game object: the scene stack, screen fades and timers.
-// Scenes: { update(dt, isTop), render(), enter?(), exit?(), opaque?, blocksUpdate? }
+// Scenes: { update(dt, isTop), render(), enter?(), exit?(), opaque?, blocksUpdate?, aboveFade? }
 import { R } from './engine/gfx.js';
 import { C } from './engine/palette.js';
 
@@ -92,7 +92,12 @@ export const G = {
   render() {
     let start = this.stack.length - 1;
     while (start > 0 && !this.stack[start].opaque) start--;
-    for (let i = Math.max(0, start); i < this.stack.length; i++) this.stack[i].render();
+    const shown = this.stack.slice(Math.max(0, start));
+    // The screen fade covers the game, but not a scene that asks to sit above it. A
+    // full-screen card is its own blackout and brings its own words: drawn under the
+    // fade it is a black screen with nothing on it, which is what the intro used to be.
+    for (const s of shown) if (!s.aboveFade) s.render();
     if (this.fadeState.a > 0.001) R.fill(this.fadeState.color, this.fadeState.a);
+    for (const s of shown) if (s.aboveFade) s.render();
   },
 };

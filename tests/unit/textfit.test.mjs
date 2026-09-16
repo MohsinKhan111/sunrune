@@ -80,6 +80,32 @@ test('every line of dialogue fits the box, with a portrait and without', () => {
   }
 });
 
+test('no line of dialogue is drawn against the edge of its box', () => {
+  // The frame is 2 px, so the inside of the box ends at x 310. Both layouts start their
+  // text 8 px in from the inside edge; this is the same promise on the other side.
+  const src = read('story/dialogue.js');
+  const box = /BOX = \{ x: (\d+), y: \d+, w: (\d+), h: \d+ \}/.exec(src);
+  assert.ok(box, 'could not find BOX in dialogue.js');
+  const innerRight = Number(box[1]) + Number(box[2]) - 2;
+  // Where each layout puts its first glyph, taken from the code for the same reason.
+  const starts = { portrait: Number(box[1]) + 62, plain: Number(box[1]) + 10 };
+  const MARGIN = 8;
+  for (const [kind, width] of Object.entries(boxWidths)) {
+    assert.ok(
+      starts[kind] + width <= innerRight - MARGIN + 1,
+      `${kind} text can reach x${starts[kind] + width}, ${innerRight - starts[kind] - width}px from the border at x${innerRight}`,
+    );
+    for (const str of dialogueStrings) {
+      for (const page of layout(str, width, { hero: 'Pip' })) {
+        for (const line of page) {
+          const end = starts[kind] + line.w;
+          assert.ok(end <= innerRight - MARGIN, `${kind}: a line ends at x${end}, ${innerRight - end}px from the border: "${str}"`);
+        }
+      }
+    }
+  }
+});
+
 test('a page of dialogue is never more than three lines', () => {
   for (const str of dialogueStrings) {
     for (const page of layout(str, boxWidths.portrait, { hero: 'Pip' })) {

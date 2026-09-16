@@ -94,12 +94,22 @@ async function startAFight(page, limit = 30000) {
 }
 
 // Put the party on the floor and let the fight finish them, leaving the defeat screen up.
+//
+// The enemies are propped up as well as the party being knocked down. Mashing confirm
+// is an attack as well as a way through the messages, so on 1 HP each it was a race
+// between the enemy landing a hit and the party winning the fight outright - and the
+// party won it about one run in three, failing the check for the one reason it is not
+// looking for.
 async function goDown(page) {
   await game(page, () => {
     const b = window.__sunrune.G.stack.find((s) => s.constructor.name === 'BattleScene');
     for (const p of b.party) {
       p.hp = 1;
       p.shown = 1;
+    }
+    for (const f of b.foes) {
+      f.maxHp = 9999;
+      f.hp = 9999;
     }
   });
   for (let i = 0; i < 140; i++) {

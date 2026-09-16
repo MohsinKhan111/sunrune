@@ -14,7 +14,11 @@ import { CHARS } from '../data/chars.js';
 
 export const TEXT_SPEEDS = { slow: 30, normal: 55, fast: 110, instant: Infinity };
 export const BOX = { x: 8, y: 122, w: 304, h: 54 };
-export const TEXT_W = { portrait: 240, plain: 288 };
+// The box's frame is 2 px, so the inside runs x 10 to 310. Text starts 8 px in from
+// that on the left (x 18, or x 70 past a portrait) and stops 8 px short of it on the
+// right, so a line that fills its width still has air before the border instead of
+// sitting against it.
+export const TEXT_W = { portrait: 232, plain: 284 };
 
 export function say(speaker, str, opts = {}) {
   return new Promise((resolve) => G.push(new DialogScene(speaker, str, { ...opts, resolve })));

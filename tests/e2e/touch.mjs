@@ -46,12 +46,14 @@ async function finger(page) {
 
 const mid = (box) => ({ x: box.x + box.w / 2, y: box.y + box.h / 2 });
 
-// Where each face button sits inside the diamond, as a fraction of the cluster box.
+// The centre of each face button, as a fraction of the cluster box: 31% out from the
+// middle along one axis, matching touch.css. Tapping the centre rather than near an
+// edge is what a thumb does, and it keeps the check honest if the buttons are resized.
 const FACE_AT = {
-  a: [0.785, 0.5],
-  b: [0.5, 0.785],
-  x: [0.215, 0.5],
-  y: [0.5, 0.215],
+  a: [0.81, 0.5],
+  b: [0.5, 0.81],
+  x: [0.19, 0.5],
+  y: [0.5, 0.19],
 };
 const faceButton = (box, which) => ({
   x: box.x + box.w * FACE_AT[which][0],
