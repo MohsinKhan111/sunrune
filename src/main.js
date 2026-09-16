@@ -123,6 +123,45 @@ function measureLevel(node) {
   }
 }
 
+// How the mix is spread across the register, as a percentage per band: bass, the range
+// a melody lives in, and the top. Warm music is weighted low, but a mix with nothing in
+// the middle is muffled rather than warm, and one number cannot tell those apart (D34).
+const BANDS = [['bass', 0, 300], ['mid', 300, 2000], ['top', 2000, 12000]];
+function measureBands(node) {
+  const tap = node ?? audio.musicGain;
+  if (!audio.ctx || !tap) return 0;
+  try {
+    let an = analysers.get(tap);
+    if (!an) {
+      an = audio.ctx.createAnalyser();
+      an.fftSize = 2048;
+      tap.connect(an);
+      analysers.set(tap, an);
+    }
+    const bins = new Float32Array(an.frequencyBinCount);
+    an.getFloatFrequencyData(bins);
+    const hzPerBin = audio.ctx.sampleRate / an.fftSize;
+    const sums = BANDS.map(() => 0);
+    let total = 0;
+    for (let i = 1; i < bins.length; i++) {
+      // dB back to amplitude, with anything near the noise floor ignored.
+      if (bins[i] < -90) continue;
+      const amp = 10 ** (bins[i] / 20);
+      const hz = i * hzPerBin;
+      const band = BANDS.findIndex(([, lo, hi]) => hz >= lo && hz < hi);
+      if (band >= 0) sums[band] += amp;
+      total += amp;
+    }
+    const out = {};
+    BANDS.forEach(([name], i) => {
+      out[name] = total > 0 ? Math.round((sums[i] / total) * 100) : 0;
+    });
+    return out;
+  } catch {
+    return { bass: 0, mid: 0, top: 0 };
+  }
+}
+
 const round = (n) => Math.round(n * 1000) / 1000;
 
 if (G.debug) {
@@ -185,6 +224,8 @@ if (G.debug) {
       level: round(measureLevel()),
       musicLevel: round(measureLevel(audio.musicGain)),
       ambientLevel: round(measureLevel(audio.ambientGain)),
+      // Percentages of the music bus per band. Warm is bass-led with the middle present.
+      musicBands: measureBands(audio.musicGain),
     }),
     // Scaling and letterbox, so a test can check them at a real window size.
     screen: () => ({

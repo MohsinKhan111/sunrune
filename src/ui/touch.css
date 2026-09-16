@@ -77,8 +77,15 @@ body.pad-on.pad-portrait .cluster-mid { grid-column: 1 / -1; grid-row: 3; }
 body.pad-on.pad-portrait .cluster-left { grid-column: 1; grid-row: 4; }
 body.pad-on.pad-portrait .cluster-right { grid-column: 2; grid-row: 4; }
 
+/* The gutters carry the safe-area inset on top of the room the cluster needs. A notch
+   or a rounded corner takes a strip off the side of the window that nothing may be drawn
+   in, and the cluster is padded clear of it - so if the gutter were only as wide as the
+   cluster, that padding would push the cluster out of its own column and onto the game. */
 body.pad-on.pad-landscape #shell {
-  grid-template-columns: var(--gut) 1fr var(--gut);
+  grid-template-columns:
+    calc(var(--gut) + var(--safe-l))
+    1fr
+    calc(var(--gut) + var(--safe-r));
   grid-template-rows: 1fr;
 }
 body.pad-on.pad-landscape #stage { grid-column: 2; grid-row: 1; }
@@ -170,11 +177,16 @@ body.pad-on canvas { margin: 0 auto; }
 
 /* ---- the cross ---- */
 
+/* Sized by --unit, but never wider than the room it has: if anything ever squeezes the
+   gutter - a system inset bigger than we planned for, a browser with its own chrome -
+   the controls shrink instead of spilling onto the picture. */
 .dpad {
   position: relative;
   width: var(--unit);
-  height: var(--unit);
-  flex: 0 0 auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  flex: 0 1 auto;
 }
 .dpad-base {
   position: absolute;
@@ -258,8 +270,10 @@ body.pad-on canvas { margin: 0 auto; }
 .face {
   position: relative;
   width: var(--unit);
-  height: var(--unit);
-  flex: 0 0 auto;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  flex: 0 1 auto;
 }
 /* 38% across, centred 31% out from the middle of the cluster: adjacent buttons are
    then 43.8% apart with 38% of that taken by the buttons themselves, so there is a real

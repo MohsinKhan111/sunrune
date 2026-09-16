@@ -2,7 +2,7 @@
 export default {
   id: 'house',
   name: "Nana's House",
-  music: 'town',
+  music: 'home',
   ambient: 'indoors',
   indoors: true,
   ground: [

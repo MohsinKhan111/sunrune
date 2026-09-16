@@ -336,6 +336,36 @@ export const touchpad = [
   },
 
   {
+    // A notched phone reserves a strip down the side of the window in landscape. The
+    // cluster is padded clear of it, so unless the gutter carries that inset too the
+    // padding shoves the cluster out of its own column and onto the game - which is
+    // exactly what it used to do.
+    name: 'a-notch-does-not-push-the-controls-onto-the-picture',
+    query: 'map=canyon&party2&lv=3&test=1',
+    open: PHONE_OVER,
+    async run({ page, shot }) {
+      const clear = await pad(page);
+      assertNothingOnThePicture(clear, 'no inset');
+      const before = clear.stage.w;
+
+      for (const inset of [24, 47, 64]) {
+        await page.addStyleTag({
+          content: `:root{--safe-l:${inset}px;--safe-r:${inset}px;--safe-b:21px;}`,
+        });
+        await page.waitForTimeout(400);
+        const info = await pad(page);
+        assertNothingOnThePicture(info, `${inset}px inset`);
+        assert.ok(info.dpad.x + info.dpad.w <= info.stage.x, `${inset}px inset: the cross reaches the picture`);
+        assert.ok(info.face.x >= info.stage.x + info.stage.w, `${inset}px inset: the buttons reach the picture`);
+        // The picture gives up the room, rather than the controls being squeezed out.
+        assert.ok(info.stage.w <= before, `${inset}px inset: the picture grew`);
+        assert.ok(info.dpad.w >= 92, `${inset}px inset: the cross shrank to ${info.dpad.w}px`);
+      }
+      await shot('touch-notch-landscape');
+    },
+  },
+
+  {
     // The pad is for thumbs. A desktop window gets the keyboard and no pad at all, and
     // the picture keeps the whole window the way it always did.
     name: 'a-desktop-window-gets-no-pad',

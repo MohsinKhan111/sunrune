@@ -6,8 +6,11 @@ import assert from 'node:assert/strict';
 import { SONGS } from '../../src/data/music.js';
 
 const NOTE = /^([a-g])([#b]?)(\d)$/;
-const DRUM = /^[ksh]$/;
-const TRACKS = ['p1', 'p2', 'bass', 'drums'];
+const DRUM = /^[kshro]$/;
+const TRACKS = ['pad', 'p1', 'p2', 'bass', 'drums'];
+const PITCHED = ['pad', 'p1', 'p2', 'bass'];
+// A step may hold a chord: "c4+e4+g4" is three notes at once (D34).
+const notesOf = (token) => token.split('+').filter(Boolean);
 
 function bars(song, track) {
   return song.tracks[track] ?? [];
@@ -36,13 +39,15 @@ test('every bar is exactly 8 steps', () => {
 
 test('every pitched token is a real note', () => {
   for (const [name, song] of Object.entries(SONGS)) {
-    for (const track of ['p1', 'p2', 'bass']) {
+    for (const track of PITCHED) {
       bars(song, track).forEach((bar, i) => {
         for (const tok of bar.split(/\s+/).filter(Boolean)) {
           if (tok === '.' || tok === '-') continue;
-          assert.match(tok, NOTE, `${name}.${track} bar ${i} token "${tok}"`);
-          const octave = Number(NOTE.exec(tok)[3]);
-          assert.ok(octave >= 1 && octave <= 6, `${name}.${track} octave ${octave} out of range`);
+          for (const note of notesOf(tok)) {
+            assert.match(note, NOTE, `${name}.${track} bar ${i} token "${tok}"`);
+            const octave = Number(NOTE.exec(note)[3]);
+            assert.ok(octave >= 1 && octave <= 6, `${name}.${track} octave ${octave} out of range`);
+          }
         }
       });
     }
@@ -79,7 +84,7 @@ test('a bar never opens on a hold, which would have nothing to sustain', () => {
 test('the songs the game asks for by name all exist', () => {
   // These names are the ones passed to audio.music() around the game.
   const used = [
-    'title', 'town', 'canyon', 'hollow', 'battle', 'boss',
+    'title', 'town', 'home', 'post', 'canyon', 'hollow', 'battle', 'boss',
     'ending', 'intro', 'victory', 'levelup', 'lose', 'item', 'chapter',
   ];
   for (const name of used) assert.ok(SONGS[name], `missing song "${name}"`);
@@ -107,7 +112,56 @@ test('the flourishes end instead of looping', () => {
   for (const name of ['levelup', 'lose', 'item', 'chapter']) {
     assert.equal(SONGS[name].once, true, `${name} should be a one-shot`);
   }
-  for (const name of ['title', 'town', 'canyon', 'hollow', 'battle', 'boss', 'victory']) {
+  for (const name of ['title', 'town', 'home', 'post', 'canyon', 'hollow', 'battle', 'boss', 'victory']) {
     assert.ok(!SONGS[name].once, `${name} should loop`);
+  }
+});
+
+test('the places you can stand in all sound different from each other', () => {
+  // Indoors and outdoors were the same theme until the user pointed it out. A theme per
+  // place is only worth having if the themes are actually distinct, so this compares the
+  // thing a listener would notice first: the key, the tempo and the bass line.
+  const places = ['town', 'home', 'post', 'canyon', 'hollow'];
+  const seen = new Map();
+  for (const name of places) {
+    const song = SONGS[name];
+    const signature = `${song.bpm}|${bars(song, 'bass').join('|')}`;
+    assert.ok(!seen.has(signature), `${name} and ${seen.get(signature)} are the same piece of music`);
+    seen.set(signature, name);
+  }
+});
+
+test('an area theme is long enough not to feel like a loop', () => {
+  // Eight bars at these tempos is around half a minute before it comes round again.
+  for (const name of ['title', 'town', 'home', 'post', 'canyon', 'hollow', 'battle', 'boss', 'ending']) {
+    const song = SONGS[name];
+    const seconds = (song.bars * 4 * 60) / song.bpm;
+    assert.ok(seconds >= 20, `${name} loops every ${seconds.toFixed(1)}s`);
+  }
+});
+
+test('the area themes are chill, and the fights are not', () => {
+  for (const name of ['title', 'home', 'hollow', 'canyon', 'town', 'post', 'ending']) {
+    assert.ok(SONGS[name].bpm <= 90, `${name} runs at ${SONGS[name].bpm} bpm`);
+  }
+  for (const name of ['battle', 'boss']) {
+    assert.ok(SONGS[name].bpm >= 90, `${name} runs at ${SONGS[name].bpm} bpm`);
+  }
+});
+
+test('a chord is a chord, not a pile of notes', () => {
+  // Four is a seventh; more than that and the voicing is muddy at this register, and the
+  // sequencer would be dividing one voice's level too many ways to be heard.
+  for (const [name, song] of Object.entries(SONGS)) {
+    for (const track of PITCHED) {
+      bars(song, track).forEach((bar, i) => {
+        for (const tok of bar.split(/\s+/).filter(Boolean)) {
+          if (tok === '.' || tok === '-') continue;
+          const n = notesOf(tok).length;
+          assert.ok(n <= 4, `${name}.${track} bar ${i} stacks ${n} notes`);
+          if (track === 'bass') assert.equal(n, 1, `${name}.bass bar ${i} plays a chord`);
+        }
+      });
+    }
   }
 });

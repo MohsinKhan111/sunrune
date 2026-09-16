@@ -11,6 +11,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { basics } from './basics.mjs';
 import { touchpad } from './touch.mjs';
+import { sound } from './sound.mjs';
 import { chapter } from './playthrough.mjs';
 import { perf } from './perf.mjs';
 import { bugbash } from './bugbash.mjs';
@@ -21,7 +22,7 @@ const only = process.argv[2];
 const onlyCheck = process.argv[3];
 const SHOTS = path.join(process.cwd(), 'tests', 'screenshots');
 fs.mkdirSync(SHOTS, { recursive: true });
-const suites = [['basics', basics], ['touch', touchpad], ['chapter', chapter], ['perf', perf], ['bugbash', bugbash]];
+const suites = [['basics', basics], ['touch', touchpad], ['sound', sound], ['chapter', chapter], ['perf', perf], ['bugbash', bugbash]];
 const running = suites.filter(([name]) => !only || only === name);
 if (!running.length) {
   console.log(`no suite called "${only}" - try ${suites.map(([n]) => n).join(", ")}`);

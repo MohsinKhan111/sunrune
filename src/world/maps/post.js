@@ -2,7 +2,7 @@
 export default {
   id: 'post',
   name: 'Dunmere Post Office',
-  music: 'town',
+  music: 'post',
   ambient: 'indoors',
   indoors: true,
   ground: [
