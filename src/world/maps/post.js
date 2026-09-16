@@ -1,0 +1,40 @@
+// Dunmere Post Office. 14×10 tiles. Tilly works behind the counter.
+export default {
+  id: 'post',
+  name: 'Dunmere Post Office',
+  music: 'town',
+  ambient: 'indoors',
+  indoors: true,
+  ground: [
+    '#WWWWWWWWWWWW#',
+    '#WWWWWWWWWWWW#',
+    '#WWWWWWWWWWWW#',
+    '#mmmmmmmmmmmm#',
+    '#mmmmmmmmmmmm#',
+    '#mmmmmmmmmmmm#',
+    '#mmmmmmmmmmmm#',
+    '#mmmmmmmmmmmm#',
+    '#mmmmmmmmmmmm#',
+    '######mm######',
+  ],
+  props: [
+    '              ',
+    '              ',
+    '              ',
+    ' lll    xX  B ',
+    '              ',
+    ' XXXXX        ',
+    '              ',
+    '            b ',
+    ' e            ',
+    '              ',
+  ],
+  counters: [{ x: 1, y: 5, w: 5, h: 1 }],
+  objects: [
+    { type: 'terminal', x: 7, y: 3 },
+    { type: 'exit', x: 6, y: 9, w: 2, h: 1, to: 'dunmere', spawn: 'post' },
+  ],
+  spawns: {
+    door: { x: 6.5, y: 8, facing: 'up' },
+  },
+};

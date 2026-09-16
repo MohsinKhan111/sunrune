@@ -1,0 +1,43 @@
+// Nana's House. 12×9 tiles.
+export default {
+  id: 'house',
+  name: "Nana's House",
+  music: 'town',
+  ambient: 'indoors',
+  indoors: true,
+  ground: [
+    '#WWWWWWWWWW#',
+    '#WWWWWWWWWW#',
+    '#ffffffffff#',
+    '#ffffffffff#',
+    '#ffffffffff#',
+    '#ffffffffff#',
+    '#ffffffffff#',
+    '#ffffffffff#',
+    '#####ff#####',
+  ],
+  props: [
+    '            ',
+    '            ',
+    ' x        l ',
+    '            ',
+    '            ',
+    '            ',
+    ' e        b ',
+    '            ',
+    '            ',
+  ],
+  objects: [
+    { type: 'deco', art: 'bed', x: 8, y: 2, solid: true, box: [0, 2, 32, 16] },
+    { type: 'deco', art: 'blanket', x: 8, y: 2, over: true, id: 'blanket' },
+    { type: 'deco', art: 'table', x: 4, y: 3, solid: true, box: [0, 1, 16, 9] },
+    { type: 'deco', art: 'rug', x: 4, y: 5, flat: true },
+    { type: 'pickup', id: 'satchel', art: 'satchel', x: 4, y: 3, dx: 2, dy: -3 },
+    { type: 'terminal', x: 2, y: 2 },
+    { type: 'exit', x: 5, y: 8, w: 2, h: 1, to: 'dunmere', spawn: 'door' },
+  ],
+  spawns: {
+    bed: { x: 8.5, y: 3.2, facing: 'right' },
+    door: { x: 5.5, y: 7, facing: 'up' },
+  },
+};

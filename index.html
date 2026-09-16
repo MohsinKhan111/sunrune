@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+<meta name="theme-color" content="#17111c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>SUNRUNE</title>
+<link rel="icon" href="data:,">
+<link rel="stylesheet" href="src/ui/touch.css">
+<style>
+  /* The shell is a grid so the pad can take its own room rather than sit on the game:
+     one column with the stage on top on a phone held upright, three with the stage in
+     the middle when it is turned sideways (F40). touch.css lays out the two cases. */
+  html, body {
+    margin: 0;
+    height: 100%;
+    background: #17111c;
+    overflow: hidden;
+    overscroll-behavior: none;
+    touch-action: none;
+    -webkit-text-size-adjust: 100%;
+  }
+  #shell { position: fixed; inset: 0; display: grid; }
+  #stage { position: relative; min-width: 0; min-height: 0; }
+  canvas {
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    outline: none;
+    touch-action: none;
+  }
+  body.hide-cursor, body.hide-cursor canvas { cursor: none; }
+  .msg { color: #f3cdac; font: 18px/1.6 system-ui, sans-serif; max-width: 32em; margin: 22vh auto 0; padding: 0 1.5em; text-align: center; }
+  .msg b { color: #ffb84c; }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="stage"><canvas id="game" tabindex="0" aria-label="SUNRUNE"></canvas></div>
+</div>
+<script>
+  if (location.protocol === 'file:') {
+    document.body.innerHTML =
+      '<div class="msg"><p><b>SUNRUNE</b> has to be served over http. Browsers refuse to ' +
+      'load JavaScript modules straight off the disk.</p>' +
+      '<p>Run <b>npm start</b> in the project folder, or double-click <b>Play.bat</b> on Windows.</p></div>';
+  } else {
+    var s = document.createElement('script');
+    s.type = 'module';
+    s.src = 'src/main.js';
+    document.body.appendChild(s);
+  }
+</script>
+</body>
+</html>
