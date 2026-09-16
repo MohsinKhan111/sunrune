@@ -72,4 +72,4 @@ The game makes no network requests of its own and has no analytics, accounts or 
 
 Art and sound effects by [Kenney](https://kenney.nl) — Desert Shooter Pack, CC0. See `assets/KENNEY-LICENSE.txt`. The music is synthesized in the browser with the Web Audio API; there are no audio files for it.
 
-Code is MIT licensed — see `LICENSE`.
+Code is MIT licensed (see `LICENSE`). The art and sound effects keep their own CC0 terms.
