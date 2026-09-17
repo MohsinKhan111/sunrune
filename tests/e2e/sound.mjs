@@ -104,6 +104,40 @@ export const sound = [
   },
 
   {
+    // Two of the pack's samples were hiss rather than tone, and the cursor one played on
+    // every press while somebody read down a menu. They are synthesized now, and the
+    // point of that is that scrolling a menu should be quieter than committing to
+    // something - not the other way round, which is how it was.
+    name: 'moving-through-a-menu-is-quieter-than-pressing-a-button',
+    query: 'map=dunmere&party2&lv=4&test=1',
+    async run({ page }) {
+      await wake(page);
+      const peakOf = (name) =>
+        page.evaluate(async (n) => {
+          const m = await import('./src/engine/audio.js');
+          let top = 0;
+          m.audio.sfx(n);
+          for (let i = 0; i < 40; i++) {
+            await new Promise((r) => setTimeout(r, 20));
+            top = Math.max(top, window.__sunrune.audio().level);
+          }
+          return top;
+        }, name);
+
+      const confirm = await peakOf('confirm');
+      await page.waitForTimeout(400);
+      const cursor = await peakOf('cursor');
+      await page.waitForTimeout(400);
+      const levelup = await peakOf('levelup');
+
+      assert.ok(cursor > 0.005, 'the cursor makes no sound at all');
+      assert.ok(levelup > 0.005, 'the level-up makes no sound at all');
+      assert.ok(cursor < confirm, `moving the cursor (${cursor.toFixed(3)}) is louder than confirming (${confirm.toFixed(3)})`);
+      assert.ok(levelup <= confirm, `the level-up (${levelup.toFixed(3)}) is louder than confirming (${confirm.toFixed(3)})`);
+    },
+  },
+
+  {
     // Turning the music down has to actually turn it down, and off has to be off - the
     // crackle and the echo are new nodes and both could have missed the volume bus.
     name: 'the-music-volume-setting-reaches-every-part-of-the-mix',

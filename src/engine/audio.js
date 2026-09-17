@@ -8,7 +8,6 @@ import { ambient } from './ambient.js';
 // Names the game asks for → sample choices from the pack. A list means pick one at random.
 const SFX = {
   confirm: ['select-a'],
-  cursor: ['move-a', 'move-b'],
   cancel: ['move-c'],
   error: ['error-a'],
   hit: ['hurt-a', 'hurt-b'],
@@ -22,7 +21,6 @@ const SFX = {
   coin: ['coin-a'],
   chest: ['coin-c'],
   unlock: ['coin-c'],
-  levelup: ['coin-d'],
   heal: ['coin-b'],
   hop: ['jump-a', 'jump-b'],
   door: ['jump-e'],
@@ -33,6 +31,22 @@ const SFX = {
   flash: ['explosion-b'],
   chime: ['coin-a'],
   text: [],
+};
+
+// Two of the pack's sounds are hiss where they should be tone: `move-a` and `move-b`
+// (the cursor) cross zero around 12,000 times a second, and `coin-d` (a level-up, and
+// Biscuit joining) about 10,000 - against a few hundred for everything else in the game.
+// They are synthesized instead, soft and rounded, and the pack's versions are unused.
+const SYNTH = {
+  // One short, warm pip that lifts slightly. Quiet, because it plays on every press of
+  // a direction while somebody reads down a menu.
+  cursor: (a) => a.softTone(700, { dur: 0.07, level: 0.09, bend: 1.1 }),
+  // A small major arpeggio: something happened and it was good. Warmer than the coin
+  // sample it replaces and about half the level.
+  levelup: (a) => {
+    [523.25, 659.25, 783.99].forEach((hz, i) => a.softTone(hz, { at: i * 0.075, dur: 0.16, level: 0.1 }));
+    a.softTone(1046.5, { at: 0.225, dur: 0.42, level: 0.085 });
+  },
 };
 
 export const audio = {
@@ -128,11 +142,35 @@ export const audio = {
   sfx(name, opts = {}) {
     if (!this.ctx) return;
     if (name === 'step') return this.step(opts);
+    if (SYNTH[name]) return SYNTH[name](this, opts);
     const list = SFX[name];
     if (!list || !list.length) return;
     const pick = list[Math.floor(Math.random() * list.length)];
     const pitch = (opts.pitch ?? 1) * (0.96 + Math.random() * 0.08);
     this.play(pick, { ...opts, pitch });
+  },
+
+  // A soft synthesized tone: a sine with no click at either end and nothing above the
+  // fundamental. `bend` slides the pitch by that factor across the note.
+  softTone(freq, { at = 0, dur = 0.09, level = 0.14, bend = 0 } = {}) {
+    if (!this.ctx) return;
+    try {
+      const t = this.ctx.currentTime + at;
+      const osc = this.ctx.createOscillator();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, t);
+      if (bend) osc.frequency.exponentialRampToValueAtTime(freq * bend, t + dur);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.0001, t);
+      g.gain.exponentialRampToValueAtTime(level, t + 0.012);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(t);
+      osc.stop(t + dur + 0.03);
+    } catch {
+      // Ignore: a missing blip is not worth breaking anything for.
+    }
   },
 
   // Short square blip for dialogue, pitched per speaker.
