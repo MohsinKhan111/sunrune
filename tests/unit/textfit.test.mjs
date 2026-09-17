@@ -127,6 +127,30 @@ test('the font can draw every character the game shows', () => {
   );
 });
 
+test('no panel names a keyboard key, because not everyone has one', () => {
+  // These strings are drawn on screen, and on a phone there is no Enter key to press.
+  // Anything that names a control has to go through input.label(), which answers for
+  // whatever is being played on. title.js is the one exception and is checked below.
+  const banned = /\b(Enter|Esc|Escape|Shift|Backspace|Spacebar)\b/;
+  for (const file of ['ui/menu.js', 'ui/shop.js', 'ui/ending.js', 'ui/settings.js', 'ui/loading.js']) {
+    for (const str of literals(read(file)).filter(isProse)) {
+      const hit = banned.exec(str);
+      assert.ok(!hit, `${file} draws "${hit?.[0]}" at the player: "${str}"`);
+    }
+  }
+});
+
+test('the title prompt says something for every device, not just a keyboard', () => {
+  // The one place a key may be named in full, because it names one per device. If a
+  // device is missing from the map the prompt silently falls back to the keyboard's.
+  const src = read('ui/title.js');
+  const m = /const START_PROMPT = \{([^}]*)\}/.exec(src);
+  assert.ok(m, 'could not find START_PROMPT in title.js');
+  for (const device of ['keyboard', 'gamepad', 'touch']) {
+    assert.ok(m[1].includes(`${device}:`), `START_PROMPT has nothing for ${device}`);
+  }
+});
+
 test('nothing in the game says dead, killed, died, kill or blood', () => {
   const banned = /\b(dead|killed|died|kill|blood)\b/i;
   for (const str of allStrings) {

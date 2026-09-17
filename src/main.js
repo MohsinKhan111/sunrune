@@ -372,8 +372,15 @@ async function boot() {
     G.state.party = [makeMember('pip', lv)];
     if (params.has('party2')) G.state.party.push(makeMember('biscuit', lv));
     G.state.items = { cactus_candy: 2, fizzy_dew: 1, dust_bomb: 1 };
-    const ids = params.get('battle').split(',');
-    audio.music(ids.some((id) => ENEMIES[id]?.boss) ? 'boss' : 'battle');
+    // A debug route takes its enemies from the address bar, and the battle scene is
+    // written for ids that exist. Anything else and there is nothing sensible to show,
+    // so the title is the answer rather than a loading screen that never finishes.
+    const ids = params.get('battle').split(',').filter((id) => ENEMIES[id]);
+    if (!ids.length) {
+      showTitle();
+      return;
+    }
+    audio.music(ids.some((id) => ENEMIES[id].boss) ? 'boss' : 'battle');
     G.replace(new BattleScene({ enemies: ids, onEnd: () => showTitle() }));
     return;
   }
@@ -407,10 +414,17 @@ async function boot() {
     return;
   }
   if (which === 'world' || params.has('map')) {
+    // Same again for the map: a name that is not a map used to throw on the way in and
+    // leave a half-built world behind.
+    const mapId = params.get('map') ?? 'house';
+    if (!MAPS[mapId]) {
+      showTitle();
+      return;
+    }
     // Pulled in here like the other debug routes do, rather than at the top: the real
     // game path only needs newGame.
     const { makeMember } = await import('./story/state.js');
-    startGame(params.get('map') ?? 'house', params.get('spawn'), (st) => {
+    startGame(mapId, params.get('spawn'), (st) => {
       // ?lv= and ?party2 let a map be tested the way it is actually reached: the canyon,
       // for one, only opens once Biscuit has joined, so testing it with Pip on her own
       // is a harder game than anybody will ever play.

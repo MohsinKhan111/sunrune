@@ -136,7 +136,9 @@ class EndingScene {
           text(value, VW / 2 + 70, y, { align: 'right', color: 'white' });
         });
       });
-      if (this.t > 2.2) text('Press Enter', VW / 2, VH - 22, { align: 'center', color: 'cream', alpha: 0.8 });
+      if (this.t > 2.2) {
+        text(`Press ${input.label('confirm')}`, VW / 2, VH - 22, { align: 'center', color: 'cream', alpha: 0.8 });
+      }
       return;
     }
     const scroll = VH + 6 - this.t * 26;

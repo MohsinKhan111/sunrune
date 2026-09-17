@@ -160,7 +160,11 @@ class ShopScene {
 
     // Bottom strip: money, and the way out.
     text(`Sand dollars: ${st.dollars}`, 8, VH - 16, { color: 'gold' });
-    text(this.qty === null ? 'Enter: buy   Esc: leave' : 'Enter: take it   Esc: back', VW - 8, VH - 16, {
+    // Named for whatever is being played on: there is no Enter key on a phone (F40).
+    const ok = input.label('confirm');
+    const back = input.label('cancel');
+    const hint = this.qty === null ? `${ok}: buy   ${back}: leave` : `${ok}: take it   ${back}: back`;
+    text(hint, VW - 8, VH - 16, {
       align: 'right',
       color: 'mist',
     });

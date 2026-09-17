@@ -169,6 +169,31 @@ export const basics = [
   },
 
   {
+    // The debug routes read the address bar, and the address bar is the one input a
+    // player can get wrong - or be sent wrong by somebody else. A name that is not a map
+    // or an enemy used to throw on the way in: the map route left a half-built world
+    // behind, and the battle route sat on the loading screen for good. Both now land on
+    // the title, which is somewhere you can actually play from.
+    name: 'a-bad-address-lands-on-the-title-instead-of-breaking',
+    query: 'test=1',
+    async run({ page, base }) {
+      for (const query of ['map=nowhere', 'battle=notanenemy', 'battle=', 'map=&debug=world']) {
+        await page.goto(`${base}?${query}&test=1`);
+        await page.waitForTimeout(2200);
+        const scenes = await game(page, () => window.__sunrune.scenes());
+        assert.deepEqual(scenes, ['TitleScene'], `?${query} left the game on ${scenes.join(' > ')}`);
+      }
+      // And a good address still works, which is what the rest of the suite relies on.
+      await page.goto(`${base}?map=house&party2&lv=4&test=1`);
+      await page.waitForTimeout(2200);
+      assert.deepEqual(await game(page, () => window.__sunrune.scenes()), ['Overworld'], 'a valid map stopped working');
+      await page.goto(`${base}?battle=glimmerslug,dune_moth&lv=3&test=1`);
+      await page.waitForTimeout(2500);
+      assert.ok(await game(page, () => window.__sunrune.battle()), 'a valid battle stopped working');
+    },
+  },
+
+  {
     name: 'opening-the-file-directly-says-how-to-start-it',
     async run({ page }) {
       const file = pathToFileURL(path.join(process.cwd(), 'index.html')).href;

@@ -7,17 +7,21 @@ export const IMAGES = {
   weapons: 'assets/weapons.png',
 };
 
+// Only the sounds the game actually plays. Everything here is downloaded and decoded
+// before the loading bar finishes, so an unused one costs a player real time for nothing
+// - the pack ships 40 and the game uses 22. A unit test keeps this list and the SFX map
+// in step, in both directions.
 export const SOUNDS = [
-  'coin-a', 'coin-b', 'coin-c', 'coin-d',
-  'error-a', 'error-b', 'error-c',
+  'coin-a', 'coin-b', 'coin-c',
+  'error-a', 'error-c',
   'explosion-a', 'explosion-b', 'explosion-c',
   'fall-a', 'fall-b',
-  'hurt-a', 'hurt-b', 'hurt-c', 'hurt-d', 'hurt-e',
-  'jump-a', 'jump-b', 'jump-c', 'jump-d', 'jump-e', 'jump-f',
-  'lose-a', 'lose-b', 'lose-c', 'lose-d',
-  'move-a', 'move-b', 'move-c', 'move-d',
+  'hurt-a', 'hurt-b', 'hurt-c', 'hurt-d',
+  'jump-a', 'jump-b', 'jump-e',
+  'lose-a',
+  'move-c',
   'select-a',
-  'shoot-a', 'shoot-b', 'shoot-c', 'shoot-d', 'shoot-e', 'shoot-f', 'shoot-g', 'shoot-h',
+  'shoot-c', 'shoot-f',
 ];
 
 export const assets = { img: {}, snd: {} };

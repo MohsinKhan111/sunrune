@@ -38,16 +38,17 @@ Opening `index.html` by double-clicking it will not work — browsers refuse to 
 ## Tests
 
 ```
-npm test           # 89 unit tests, a few seconds
-npm run test:e2e   # drives your installed Chrome, about 15 minutes
+npm test           # 101 unit tests, a few seconds
+npm run test:e2e   # drives your installed Chrome, about 12 minutes
 ```
 
 The browser run leaves a screenshot of every check in `tests/screenshots`. It needs Chrome or Edge installed; set `CHROME_PATH` if it is somewhere unusual. To run one suite: `node tests/e2e/run.mjs basics`, or one check: `node tests/e2e/run.mjs bugbash every-door`.
 
 | Suite | Covers |
 |---|---|
-| `basics` | boot, new game, picking things up, save and reload |
+| `basics` | boot, new game, picking things up, save and reload, bad addresses |
 | `touch` | the on-screen pad, driven with real touch events |
+| `sound` | listens to the audio bus: a theme per place, and the mix is warm |
 | `chapter` | a bot plays the whole chapter, title to credits |
 | `bugbash` | doors, map edges, every NPC, menus, defeat |
 | `perf` | frame cost in the two busiest scenes |

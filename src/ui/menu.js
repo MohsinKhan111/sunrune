@@ -409,13 +409,13 @@ class MenuScene {
     text('Sound, text speed, shake,', PANE.x + 8, PANE.y + 30, { color: 'mist' });
     text('flashing, battle timing and', PANE.x + 8, PANE.y + 41, { color: 'mist' });
     text('fullscreen.', PANE.x + 8, PANE.y + 52, { color: 'mist' });
-    text('Press Enter to open.', PANE.x + 8, PANE.y + 72, { color: 'cream' });
+    text(`Press ${input.label('confirm')} to open.`, PANE.x + 8, PANE.y + 72, { color: 'cream' });
   }
 
   renderQuit() {
     text('Quit to Title', PANE.x + 8, PANE.y + 8, { color: 'gold' });
     if (this.level !== CONFIRMING) {
-      text('Press Enter to go back to', PANE.x + 8, PANE.y + 30, { color: 'mist' });
+      text(`Press ${input.label('confirm')} to go back to`, PANE.x + 8, PANE.y + 30, { color: 'mist' });
       text('the title screen.', PANE.x + 8, PANE.y + 41, { color: 'mist' });
       return;
     }
